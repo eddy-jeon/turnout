@@ -1,0 +1,8 @@
+{
+  "target": "https://nightly.dev.querypie.io",
+  "recent": [
+    "https://internal.dev.querypie.io",
+    "https://develop.dev.querypie.io",
+    "https://nightly.dev.querypie.io"
+  ]
+}
