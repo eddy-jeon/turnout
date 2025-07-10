@@ -11,11 +11,13 @@
   "license": "ISC",
   "description": "Dynamic API proxy with TUI for APP_URL switching.",
   "dependencies": {
+    "blessed": "^0.1.81",
     "chalk": "^5.3.0",
     "enquirer": "^2.3.6",
     "http-proxy": "^1.18.1"
   },
   "devDependencies": {
+    "@types/blessed": "^0.1.25",
     "@types/http-proxy": "^1.17.16",
     "@types/node": "^20.11.30",
     "typescript": "^5.4.5"

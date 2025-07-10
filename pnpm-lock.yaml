@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      blessed:
+        specifier: ^0.1.81
+        version: 0.1.81
       chalk:
         specifier: ^5.3.0
         version: 5.4.1
@@ -18,6 +21,9 @@ importers:
         specifier: ^1.18.1
         version: 1.18.1
     devDependencies:
+      '@types/blessed':
+        specifier: ^0.1.25
+        version: 0.1.25
       '@types/http-proxy':
         specifier: ^1.17.16
         version: 1.17.16
@@ -29,6 +35,9 @@ importers:
         version: 5.8.3
 
 packages:
+
+  '@types/blessed@0.1.25':
+    resolution: {integrity: sha512-kQsjBgtsbJLmG6CJA+Z6Nujj+tq1fcSE3UIowbDvzQI4wWmoTV7djUDhSo5lDjgwpIN0oRvks0SA5mMdKE5eFg==}
 
   '@types/http-proxy@1.17.16':
     resolution: {integrity: sha512-sdWoUajOB1cd0A8cRRQ1cfyWNbmFKLAqBB89Y8x5iYyG/mkJHc0YUH8pdWBy2omi9qtCpiIgGjuwO0dQST2l5w==}
@@ -43,6 +52,11 @@ packages:
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
+
+  blessed@0.1.81:
+    resolution: {integrity: sha512-LoF5gae+hlmfORcG1M5+5XZi4LBmvlXTzwJWzUlPryN/SJdSflZvROM2TwkT0GMpq7oqT48NRd4GS7BiVBc5OQ==}
+    engines: {node: '>= 0.8.0'}
+    hasBin: true
 
   chalk@5.4.1:
     resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
@@ -85,6 +99,10 @@ packages:
 
 snapshots:
 
+  '@types/blessed@0.1.25':
+    dependencies:
+      '@types/node': 20.19.6
+
   '@types/http-proxy@1.17.16':
     dependencies:
       '@types/node': 20.19.6
@@ -96,6 +114,8 @@ snapshots:
   ansi-colors@4.1.3: {}
 
   ansi-regex@5.0.1: {}
+
+  blessed@0.1.81: {}
 
   chalk@5.4.1: {}
 
