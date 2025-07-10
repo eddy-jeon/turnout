@@ -4,19 +4,25 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && node dist/index.js"
+    "start": "pnpm build && node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "Dynamic API proxy with TUI for APP_URL switching.",
   "dependencies": {
-    "http-proxy": "^1.18.1",
+    "chalk": "^5.3.0",
     "enquirer": "^2.3.6",
-    "chalk": "^5.3.0"
+    "http-proxy": "^1.18.1"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
-    "@types/node": "^20.11.30"
+    "@types/http-proxy": "^1.17.16",
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.5"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm"
+    }
   }
 }
