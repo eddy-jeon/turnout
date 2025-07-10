@@ -1,93 +1,133 @@
 import blessed from "blessed";
 import { getConfig, setTarget } from "./config";
-import { setProxyTarget } from "./proxy";
-
-const GIT_NAME = "Eddy Jeon";
-const GIT_EMAIL = "eddy@chequer.io";
+import { setProxyTarget, setProxyLogCallback } from "./proxy";
+import { createAddressBox } from "./ui/addressList";
+import { createLogBox } from "./ui/logBox";
+import { createFloatInput } from "./ui/floatInput";
+import { createBottomBar } from "./ui/bottomBar";
 
 export async function tuiLoop() {
-  // Create screen
   const screen = blessed.screen({
     smartCSR: true,
-    title: "Turnout - Dynamic API Proxy",
+    title: "Turnout - Cyberpunk Proxy",
+    fullUnicode: true,
+    dockBorders: true,
+    warnings: false,
   });
 
-  // Layout ratios
   const leftWidth = "30%";
   const rightWidth = "70%";
-  const bottomHeight = 3;
+  const bottomBarHeight = 3;
 
-  // Left: 주소 목록 + 입력
-  const addressBox = blessed.list({
-    label: " 주소 목록 ",
-    top: 0,
-    left: 0,
+  let addressItems = getConfig().recent;
+  const addressBox = createAddressBox({
+    items: addressItems,
     width: leftWidth,
-    height: `100%-${bottomHeight}`,
-    keys: true,
-    mouse: true,
-    border: "line",
-    style: {
-      selected: { bg: "blue" },
-      border: { fg: "cyan" },
-    },
-    items: getConfig().recent,
+    height: `100%-${bottomBarHeight}`,
   });
-
-  const inputBox = blessed.textbox({
-    bottom: bottomHeight,
-    left: 0,
-    width: leftWidth,
-    height: 3,
-    border: "line",
-    label: " 주소 추가 ",
-    inputOnFocus: true,
-    style: { border: { fg: "green" } },
-  });
-
-  // Right: 통신 로그
-  const logBox = blessed.log({
-    label: " 통신 로그 ",
-    top: 0,
+  const logBox = createLogBox({
     left: leftWidth,
     width: rightWidth,
-    height: `100%-${bottomHeight}`,
-    border: "line",
-    style: { border: { fg: "yellow" } },
-    scrollable: true,
-    alwaysScroll: true,
-    mouse: true,
-    keys: true,
-    vi: true,
+    height: `100%-${bottomBarHeight}`,
+  });
+  const floatInput = createFloatInput();
+
+  const bottomBar = createBottomBar({
+    height: bottomBarHeight,
+    width: typeof screen.width === "number" ? screen.width : 80,
   });
 
-  // Bottom bar
-  const bottomBar = blessed.box({
-    bottom: 0,
-    left: 0,
-    width: "100%",
-    height: bottomHeight,
-    style: { bg: "gray", fg: "black" },
-    content: ` {bold}${GIT_NAME} <${GIT_EMAIL}>{/bold}   |   q: 종료 `,
-    tags: true,
-  });
-
-  // Append to screen
   screen.append(addressBox);
-  screen.append(inputBox);
   screen.append(logBox);
   screen.append(bottomBar);
 
-  // Focus management
   addressBox.focus();
-  screen.key(["tab"], () => {
-    if (screen.focused === addressBox) inputBox.focus();
-    else if (screen.focused === inputBox) logBox.focus();
-    else addressBox.focus();
+
+  // addressBox 단축키 핸들러 변수 선언
+  const handlerJ = () => {
+    addressBox.down(1);
+    screen.render();
+  };
+  const handlerK = () => {
+    addressBox.up(1);
+    screen.render();
+  };
+  const handlerL = () => {
+    const selectedIdx = (addressBox as any).selected as number;
+    const selected = addressBox.getItem(selectedIdx)?.content;
+    if (selected) {
+      setTarget(selected);
+      setProxyTarget(selected);
+      logBox.log(
+        `{#00fff7-fg}Switched target to:{/} {#ff00c8-fg}${selected}{/}`
+      );
+    }
+  };
+  const handlerA = () => {
+    floatInput.show();
+    screen.append(floatInput); // 항상 최상위로
+    floatInput.setValue("");
+    floatInput.focus();
+    setAddressBoxKeys(false); // 입력 중엔 단축키 비활성화
+    screen.render();
+  };
+
+  function setAddressBoxKeys(enabled: boolean) {
+    if (enabled) {
+      addressBox.key(["j"], handlerJ);
+      addressBox.key(["k"], handlerK);
+      addressBox.key(["l"], handlerL);
+      addressBox.key(["a"], handlerA);
+    } else {
+      addressBox.unkey("j", handlerJ);
+      addressBox.unkey("k", handlerK);
+      addressBox.unkey("l", handlerL);
+      addressBox.unkey("a", handlerA);
+    }
+  }
+  setAddressBoxKeys(true);
+
+  setProxyLogCallback((msg: string) => {
+    logBox.log(`{bold}${msg}{/bold}`);
+    logBox.setScrollPerc(100);
+    logBox.screen.render();
   });
 
-  // 종료 단축키
-  screen.key(["q", "C-c"], () => process.exit(0));
+  // 종료 단축키: floatInput 포커스 시 무시
+  screen.key(["q", "C-c"], () => {
+    if (screen.focused === floatInput) return;
+    process.exit(0);
+  });
+
+  floatInput.on("submit", (value: string) => {
+    floatInput.hide();
+    setAddressBoxKeys(true); // 입력 끝나면 단축키 복구
+    if (value && !addressItems.includes(value)) {
+      setTarget(value); // config에 추가
+      addressItems = getConfig().recent; // config에서 최신 목록 불러오기
+      addressBox.setItems(addressItems);
+      addressBox.select(0); // 새로 추가된 항목 포커싱
+      setProxyTarget(value);
+      logBox.log(
+        `{#ffe600-fg}Added and switched to:{/} {#ff00c8-fg}${value}{/}`
+      );
+    } else if (value && addressItems.includes(value)) {
+      const idx = addressItems.indexOf(value);
+      addressBox.select(idx);
+      setTarget(value);
+      setProxyTarget(value);
+      logBox.log(`{#00fff7-fg}Switched target to:{/} {#ff00c8-fg}${value}{/}`);
+    }
+    addressBox.focus();
+    screen.render();
+  });
+
+  floatInput.on("cancel", () => {
+    floatInput.hide();
+    setAddressBoxKeys(true); // 입력 끝나면 단축키 복구
+    addressBox.focus();
+    screen.render();
+  });
 
   screen.render();
 }

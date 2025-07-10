@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "pnpm build && node dist/index.js"
+    "start": "pnpm build && node --no-warnings dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +14,8 @@
     "blessed": "^0.1.81",
     "chalk": "^5.3.0",
     "enquirer": "^2.3.6",
-    "http-proxy": "^1.18.1"
+    "http-proxy": "^1.18.1",
+    "open": "^10.1.2"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.25",
