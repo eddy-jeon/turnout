@@ -71,18 +71,45 @@ export async function tuiLoop() {
     setAddressBoxKeys(false); // 입력 중엔 단축키 비활성화
     screen.render();
   };
+  const handlerD = () => {
+    const selectedIdx = (addressBox as any).selected as number;
+    const selected = addressBox.getItem(selectedIdx)?.content;
+    if (selected) {
+      // config에서 삭제
+      addressItems = addressItems.filter((addr) => addr !== selected);
+      // config.recent를 직접 수정 (setTarget이 없으므로 직접 파일 갱신 필요)
+      const config = getConfig();
+      config.recent = addressItems;
+      if (config.target === selected) {
+        config.target = addressItems[0] || "";
+      }
+      require("fs").writeFileSync(
+        require("path").resolve(__dirname, "../proxy-config.json"),
+        JSON.stringify(config, null, 2),
+        "utf-8"
+      );
+      addressBox.setItems(addressItems);
+      addressBox.select(
+        Math.max(0, selectedIdx - (selectedIdx === addressItems.length ? 1 : 0))
+      );
+      logBox.log(`{#ff00c8-fg}Deleted:{/} ${selected}`);
+      screen.render();
+    }
+  };
 
   function setAddressBoxKeys(enabled: boolean) {
     if (enabled) {
-      addressBox.key(["j"], handlerJ);
-      addressBox.key(["k"], handlerK);
-      addressBox.key(["l"], handlerL);
-      addressBox.key(["a"], handlerA);
+      addressBox.key("j", handlerJ);
+      addressBox.key("k", handlerK);
+      addressBox.key("l", handlerL);
+      addressBox.key("a", handlerA);
+      addressBox.key("d", handlerD);
     } else {
       addressBox.unkey("j", handlerJ);
       addressBox.unkey("k", handlerK);
       addressBox.unkey("l", handlerL);
       addressBox.unkey("a", handlerA);
+      addressBox.unkey("d", handlerD);
     }
   }
   setAddressBoxKeys(true);
