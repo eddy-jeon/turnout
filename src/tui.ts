@@ -145,6 +145,17 @@ export async function tuiLoop() {
     process.exit(0);
   });
 
+  // Tab 키로 addressBox <-> logBox 포커스 전환 (floatInput 입력 중엔 무시)
+  screen.key(["tab"], () => {
+    if (screen.focused === floatInput) return;
+    if (screen.focused === addressBox) {
+      logBox.focus();
+    } else {
+      addressBox.focus();
+    }
+    screen.render();
+  });
+
   floatInput.on("submit", (value: string) => {
     floatInput.hide();
     setAddressBoxKeys(true); // 입력 끝나면 단축키 복구
