@@ -53,7 +53,7 @@ export async function tuiLoop() {
         .map(
           (item, i) =>
             `{bold}{${colorMap[i % colorMap.length]}-fg}${item.key}:{/}{${
-              colorMap[(i + 1) % colorMap.length]
+              colorMap[i % colorMap.length]
             }-fg}${item.desc}{/}{/bold}`
         )
         .join("  ") +
@@ -62,7 +62,7 @@ export async function tuiLoop() {
         .map(
           (item, i) =>
             `{bold}{${colorMap[(i + 3) % colorMap.length]}-fg}${item.key}:{/}{${
-              colorMap[(i + 4) % colorMap.length]
+              colorMap[(i + 3) % colorMap.length]
             }-fg}${item.desc}{/}{/bold}`
         )
         .join("  ")
@@ -193,7 +193,7 @@ export async function tuiLoop() {
   // logBox 단축키 핸들러 변수 선언 및 바인딩
   const logBoxKeyHandlers: Record<string, () => void> = {
     c: () => {
-      (logBox as any).clear();
+      logBox.setContent("");
       screen.render();
     },
     // 확장 가능: j, k, g, G, PgUp, PgDn 등은 blessed가 자체 처리
