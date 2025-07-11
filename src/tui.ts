@@ -3,7 +3,11 @@ import { getConfig, setTarget } from "./config";
 import { setProxyTarget, setProxyLogCallback } from "./proxy";
 import { createAddressBox } from "./ui/addressList";
 import { createLogBox } from "./ui/logBox";
-import { createFloatInput } from "./ui/floatInput";
+import {
+  createFloatInput,
+  setFloatInputState,
+  getFloatInputState,
+} from "./ui/floatInput";
 import { createBottomBar } from "./ui/bottomBar";
 
 export async function tuiLoop() {
@@ -96,6 +100,19 @@ export async function tuiLoop() {
       screen.render();
     }
   };
+  const handlerI = () => {
+    const selectedIdx = (addressBox as any).selected as number;
+    const selected = addressBox.getItem(selectedIdx)?.content;
+    if (selected) {
+      floatInput.show();
+      screen.append(floatInput);
+      floatInput.setValue(selected);
+      floatInput.focus();
+      setFloatInputState("editingForIdx", selectedIdx); // 글로벌 상태에 저장
+      setAddressBoxKeys(false);
+      screen.render();
+    }
+  };
 
   function setAddressBoxKeys(enabled: boolean) {
     if (enabled) {
@@ -104,12 +121,14 @@ export async function tuiLoop() {
       addressBox.key("l", handlerL);
       addressBox.key("a", handlerA);
       addressBox.key("d", handlerD);
+      addressBox.key("i", handlerI);
     } else {
       addressBox.unkey("j", handlerJ);
       addressBox.unkey("k", handlerK);
       addressBox.unkey("l", handlerL);
       addressBox.unkey("a", handlerA);
       addressBox.unkey("d", handlerD);
+      addressBox.unkey("i", handlerI);
     }
   }
   setAddressBoxKeys(true);
@@ -129,11 +148,52 @@ export async function tuiLoop() {
   floatInput.on("submit", (value: string) => {
     floatInput.hide();
     setAddressBoxKeys(true); // 입력 끝나면 단축키 복구
-    if (value && !addressItems.includes(value)) {
-      setTarget(value); // config에 추가
-      addressItems = getConfig().recent; // config에서 최신 목록 불러오기
+    // 수정 모드인지 확인
+    const editIdx = getFloatInputState<number>("editingForIdx");
+    setFloatInputState("editingForIdx", undefined);
+    if (typeof editIdx === "number") {
+      // 수정 모드
+      const oldValue = addressItems[editIdx];
+      if (!value || value === oldValue) {
+        addressBox.focus();
+        screen.render();
+        return;
+      }
+      if (addressItems.includes(value)) {
+        logBox.log(`{#ff00c8-fg}Already exists:{/} ${value}`);
+        addressBox.focus();
+        screen.render();
+        return;
+      }
+      addressItems[editIdx] = value;
+      // config.recent를 직접 수정
+      const config = getConfig();
+      config.recent = addressItems;
+      if (config.target === oldValue) {
+        config.target = value;
+      }
+      require("fs").writeFileSync(
+        require("path").resolve(__dirname, "../proxy-config.json"),
+        JSON.stringify(config, null, 2),
+        "utf-8"
+      );
       addressBox.setItems(addressItems);
-      addressBox.select(0); // 새로 추가된 항목 포커싱
+      addressBox.select(editIdx);
+      setTarget(value);
+      setProxyTarget(value);
+      logBox.log(
+        `{#ffe600-fg}Edited:{/} {#ff00c8-fg}${oldValue}{/} → {#00fff7-fg}${value}{/}`
+      );
+      addressBox.focus();
+      screen.render();
+      return;
+    }
+    // 추가/기존 로직
+    if (value && !addressItems.includes(value)) {
+      setTarget(value);
+      addressItems = getConfig().recent;
+      addressBox.setItems(addressItems);
+      addressBox.select(0);
       setProxyTarget(value);
       logBox.log(
         `{#ffe600-fg}Added and switched to:{/} {#ff00c8-fg}${value}{/}`

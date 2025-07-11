@@ -1,6 +1,17 @@
 import blessed from "blessed";
 import { CYBER, hexTo256Color } from "./theme";
 
+// Global state for floatInput custom properties
+const floatInputState: Record<string, any> = {};
+
+export function setFloatInputState(key: string, value: any) {
+  floatInputState[key] = value;
+}
+
+export function getFloatInputState<T = any>(key: string): T | undefined {
+  return floatInputState[key];
+}
+
 export function createFloatInput(opts?: {
   label?: string;
 }): blessed.Widgets.TextboxElement {
