@@ -1,2 +1,18 @@
-export const shortcuts =
-  "{bold}{#00fff7-fg}j/k:move{/}  {#ff00c8-fg}l:select{/}  {#ffe600-fg}a:add{/}  {#00fff7-fg}i:edit{/}  {#ff00c8-fg}d:delete{/}  {#a259ff-fg}q:quit{/bold}";
+export const keymap = {
+  addressBox: [
+    { key: "j/k", desc: "move" },
+    { key: "l", desc: "select" },
+    { key: "a", desc: "add" },
+    { key: "i", desc: "edit" },
+    { key: "d", desc: "delete" },
+  ],
+  logBox: [
+    { key: "j/k", desc: "scroll" },
+    { key: "g/G", desc: "top/bottom" },
+    { key: "PgUp/PgDn", desc: "page" },
+  ],
+  global: [
+    { key: "q", desc: "quit" },
+    { key: "tab", desc: "focus" },
+  ],
+};

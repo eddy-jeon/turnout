@@ -9,6 +9,7 @@ import {
   getFloatInputState,
 } from "./ui/floatInput";
 import { createBottomBar } from "./ui/bottomBar";
+import { keymap } from "./keymap";
 
 export async function tuiLoop() {
   const screen = blessed.screen({
@@ -36,9 +37,43 @@ export async function tuiLoop() {
   });
   const floatInput = createFloatInput();
 
+  // Helper: Render shortcut string for bottom bar
+  function renderShortcuts(box: "addressBox" | "logBox") {
+    const colorMap = [
+      "#00fff7", // neon cyan
+      "#ff00c8", // neon pink
+      "#ffe600", // neon yellow
+      "#a259ff", // purple
+      "#39ff14", // green
+    ];
+    const km = keymap[box];
+    const global = keymap.global;
+    return (
+      km
+        .map(
+          (item, i) =>
+            `{bold}{${colorMap[i % colorMap.length]}-fg}${item.key}:{/}{${
+              colorMap[(i + 1) % colorMap.length]
+            }-fg}${item.desc}{/}{/bold}`
+        )
+        .join("  ") +
+      "  " +
+      global
+        .map(
+          (item, i) =>
+            `{bold}{${colorMap[(i + 3) % colorMap.length]}-fg}${item.key}:{/}{${
+              colorMap[(i + 4) % colorMap.length]
+            }-fg}${item.desc}{/}{/bold}`
+        )
+        .join("  ")
+    );
+  }
+
+  let focusedBox: "addressBox" | "logBox" = "addressBox";
   const bottomBar = createBottomBar({
     height: bottomBarHeight,
     width: typeof screen.width === "number" ? screen.width : 80,
+    shortcuts: renderShortcuts(focusedBox),
   });
 
   screen.append(addressBox);
@@ -46,6 +81,19 @@ export async function tuiLoop() {
   screen.append(bottomBar);
 
   addressBox.focus();
+
+  function updateBottomBarShortcuts() {
+    bottomBar.setShortcuts(renderShortcuts(focusedBox));
+  }
+
+  addressBox.on("focus", () => {
+    focusedBox = "addressBox";
+    updateBottomBarShortcuts();
+  });
+  logBox.on("focus", () => {
+    focusedBox = "logBox";
+    updateBottomBarShortcuts();
+  });
 
   // addressBox 단축키 핸들러 변수 선언
   const handlerJ = () => {
