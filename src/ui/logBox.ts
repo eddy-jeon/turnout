@@ -23,8 +23,8 @@ export function createLogBox(opts: {
     scrollable: true,
     alwaysScroll: true,
     mouse: true,
-    keys: false,
-    vi: false,
+    keys: true,
+    vi: true,
     tags: true,
   });
 }
