@@ -123,6 +123,19 @@ export async function tuiLoop() {
     setAddressBoxKeys(false); // 입력 중엔 단축키 비활성화
     screen.render();
   };
+  const handlerI = () => {
+    const selectedIdx = (addressBox as any).selected as number;
+    const selected = addressBox.getItem(selectedIdx)?.content;
+    if (selected) {
+      floatInput.show();
+      screen.append(floatInput);
+      floatInput.setValue(selected);
+      floatInput.focus();
+      setFloatInputState("editingForIdx", selectedIdx); // 글로벌 상태에 저장
+      setAddressBoxKeys(false);
+      screen.render();
+    }
+  };
   const handlerD = () => {
     const selectedIdx = (addressBox as any).selected as number;
     const selected = addressBox.getItem(selectedIdx)?.content;
@@ -148,35 +161,35 @@ export async function tuiLoop() {
       screen.render();
     }
   };
-  const handlerI = () => {
-    const selectedIdx = (addressBox as any).selected as number;
-    const selected = addressBox.getItem(selectedIdx)?.content;
-    if (selected) {
-      floatInput.show();
-      screen.append(floatInput);
-      floatInput.setValue(selected);
-      floatInput.focus();
-      setFloatInputState("editingForIdx", selectedIdx); // 글로벌 상태에 저장
-      setAddressBoxKeys(false);
-      screen.render();
-    }
+
+  // keymap.addressBox의 key값을 핸들러에 매핑
+  const addressBoxKeyHandlers: Record<string, () => void> = {
+    "j/k": () => handlerJ(),
+    l: handlerL,
+    a: handlerA,
+    i: handlerI,
+    d: handlerD,
+    // 확장 가능
   };
 
   function setAddressBoxKeys(enabled: boolean) {
     if (enabled) {
-      addressBox.key("j", handlerJ);
-      addressBox.key("k", handlerK);
-      addressBox.key("l", handlerL);
-      addressBox.key("a", handlerA);
-      addressBox.key("d", handlerD);
-      addressBox.key("i", handlerI);
+      for (const item of keymap.addressBox) {
+        // 복수키(j/k) 지원
+        for (const k of item.key.split("/")) {
+          if (addressBoxKeyHandlers[item.key]) {
+            addressBox.key(k, addressBoxKeyHandlers[item.key]);
+          }
+        }
+      }
     } else {
-      addressBox.unkey("j", handlerJ);
-      addressBox.unkey("k", handlerK);
-      addressBox.unkey("l", handlerL);
-      addressBox.unkey("a", handlerA);
-      addressBox.unkey("d", handlerD);
-      addressBox.unkey("i", handlerI);
+      for (const item of keymap.addressBox) {
+        for (const k of item.key.split("/")) {
+          if (addressBoxKeyHandlers[item.key]) {
+            addressBox.unkey(k, addressBoxKeyHandlers[item.key]);
+          }
+        }
+      }
     }
   }
   setAddressBoxKeys(true);
