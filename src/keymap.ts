@@ -14,6 +14,7 @@ export const keymap = {
     { key: "G", desc: "bottom" },
     { key: "PgUp", desc: "page up" },
     { key: "PgDn", desc: "page down" },
+    { key: "c", desc: "clear log" },
   ],
   global: [
     { key: "q", desc: "quit" },

@@ -190,6 +190,32 @@ export async function tuiLoop() {
   }
   setAddressBoxKeys(true);
 
+  // logBox 단축키 핸들러 변수 선언 및 바인딩
+  const logBoxKeyHandlers: Record<string, () => void> = {
+    c: () => {
+      (logBox as any).clear();
+      screen.render();
+    },
+    // 확장 가능: j, k, g, G, PgUp, PgDn 등은 blessed가 자체 처리
+  };
+
+  function setLogBoxKeys(enabled: boolean) {
+    if (enabled) {
+      for (const item of keymap.logBox) {
+        if (logBoxKeyHandlers[item.key]) {
+          logBox.key(item.key, logBoxKeyHandlers[item.key]);
+        }
+      }
+    } else {
+      for (const item of keymap.logBox) {
+        if (logBoxKeyHandlers[item.key]) {
+          logBox.unkey(item.key, logBoxKeyHandlers[item.key]);
+        }
+      }
+    }
+  }
+  setLogBoxKeys(true);
+
   setProxyLogCallback((msg: string) => {
     logBox.log(`{bold}${msg}{/bold}`);
     logBox.setScrollPerc(100);
