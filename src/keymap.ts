@@ -1,15 +1,19 @@
 export const keymap = {
   addressBox: [
-    { key: "j/k", desc: "move" },
+    { key: "j", desc: "move down" },
+    { key: "k", desc: "move up" },
     { key: "l", desc: "select" },
     { key: "a", desc: "add" },
     { key: "i", desc: "edit" },
     { key: "d", desc: "delete" },
   ],
   logBox: [
-    { key: "j/k", desc: "scroll" },
-    { key: "g/G", desc: "top/bottom" },
-    { key: "PgUp/PgDn", desc: "page" },
+    { key: "j", desc: "scroll down" },
+    { key: "k", desc: "scroll up" },
+    { key: "g", desc: "top" },
+    { key: "G", desc: "bottom" },
+    { key: "PgUp", desc: "page up" },
+    { key: "PgDn", desc: "page down" },
   ],
   global: [
     { key: "q", desc: "quit" },

@@ -164,7 +164,8 @@ export async function tuiLoop() {
 
   // keymap.addressBox의 key값을 핸들러에 매핑
   const addressBoxKeyHandlers: Record<string, () => void> = {
-    "j/k": () => handlerJ(),
+    j: handlerJ,
+    k: handlerK,
     l: handlerL,
     a: handlerA,
     i: handlerI,
@@ -175,19 +176,14 @@ export async function tuiLoop() {
   function setAddressBoxKeys(enabled: boolean) {
     if (enabled) {
       for (const item of keymap.addressBox) {
-        // 복수키(j/k) 지원
-        for (const k of item.key.split("/")) {
-          if (addressBoxKeyHandlers[item.key]) {
-            addressBox.key(k, addressBoxKeyHandlers[item.key]);
-          }
+        if (addressBoxKeyHandlers[item.key]) {
+          addressBox.key(item.key, addressBoxKeyHandlers[item.key]);
         }
       }
     } else {
       for (const item of keymap.addressBox) {
-        for (const k of item.key.split("/")) {
-          if (addressBoxKeyHandlers[item.key]) {
-            addressBox.unkey(k, addressBoxKeyHandlers[item.key]);
-          }
+        if (addressBoxKeyHandlers[item.key]) {
+          addressBox.unkey(item.key, addressBoxKeyHandlers[item.key]);
         }
       }
     }
